@@ -48,11 +48,11 @@ sealed class MetadataContent {
       // Then check whitelist
       whitelistedUsers[userId]?.let { return it }
 
-      if (userId not in targetedUserIds) {
+      if (userId !in targetedUserIds) {
         return defaultValue
       }
-      
-      return (percentage == null) or PercentageMatchingUtil.isTargetedBasedOnPercentage(value = userId, percentage = percentage)
+
+      return (percentage == null) || PercentageMatchingUtil.isTargetedBasedOnPercentage(value = userId, percentage = percentage)
     }
   }
 
