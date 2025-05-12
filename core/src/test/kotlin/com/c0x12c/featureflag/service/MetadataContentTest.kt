@@ -8,6 +8,7 @@ import java.time.Instant
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.test.assertNull
 
 class MetadataContentTest {
   @Test
@@ -130,5 +131,37 @@ class MetadataContentTest {
     assertEquals(2, rules.rules.size)
     assertEquals("premium", rules.rules["subscriptionTier"])
     assertEquals("true", rules.rules["hasCompletedOnboarding"])
+  }
+
+  @Test
+  fun `UserTargeting should work correctly with null percentage`() {
+    val targeting =
+      MetadataContent.UserTargeting(
+        targetedUserIds = listOf("user1", "user2"),
+        percentage = null
+      )
+
+    // Should enable feature for all targeted users when percentage is null
+    assertTrue(targeting.isEnabled(mapOf("userId" to "user1")))
+    assertTrue(targeting.isEnabled(mapOf("userId" to "user2")))
+    assertFalse(targeting.isEnabled(mapOf("userId" to "user3"))) // Non-targeted user
+  }
+
+  @Test
+  fun `UserTargeting should handle metadata extraction with null percentage`() {
+    val targeting =
+      MetadataContent.UserTargeting(
+        whitelistedUsers = mapOf("user1" to true),
+        blacklistedUsers = mapOf("user2" to false),
+        targetedUserIds = listOf("user3", "user4"),
+        percentage = null,
+        defaultValue = true
+      )
+
+    assertEquals("user1:true", targeting.extractMetadata("whitelistedUsers"))
+    assertEquals("user2:false", targeting.extractMetadata("blacklistedUsers"))
+    assertEquals("user3,user4", targeting.extractMetadata("targetedUserIds"))
+    assertNull(targeting.extractMetadata("percentage"))
+    assertEquals("true", targeting.extractMetadata("defaultValue"))
   }
 }
