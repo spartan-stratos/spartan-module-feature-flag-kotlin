@@ -20,11 +20,13 @@ sealed class MetadataContent {
     val whitelistedUsers: Map<String, Boolean> = emptyMap(),
     val blacklistedUsers: Map<String, Boolean> = emptyMap(),
     val targetedUserIds: List<String> = emptyList(),
-    val percentage: Double,
+    val percentage: Double? = null,
     val defaultValue: Boolean = false
   ) : MetadataContent() {
     init {
-      require(percentage in 0.0..100.0) { "Percentage must be between 0 and 100" }
+      percentage?.let {
+        require(it in 0.0..100.0) { "Percentage must be between 0 and 100" }
+      }
     }
 
     override fun extractMetadata(key: String): String? =
@@ -32,7 +34,7 @@ sealed class MetadataContent {
         "whitelistedUsers" -> whitelistedUsers.entries.joinToString(",") { "${it.key}:${it.value}" }
         "blacklistedUsers" -> blacklistedUsers.entries.joinToString(",") { "${it.key}:${it.value}" }
         "targetedUserIds" -> targetedUserIds.joinToString(",")
-        "percentage" -> percentage.toString()
+        "percentage" -> percentage?.toString()
         "defaultValue" -> defaultValue.toString()
         else -> null
       }
@@ -46,14 +48,17 @@ sealed class MetadataContent {
       // Then check whitelist
       whitelistedUsers[userId]?.let { return it }
 
-      // Finally check targeted users or percentage
-      return if (userId in targetedUserIds &&
-        PercentageMatchingUtil.isTargetedBasedOnPercentage(value = userId, percentage = percentage)
-      ) {
-        true
-      } else {
-        defaultValue
+      // Check if user is in targetedUserIds
+      if (userId in targetedUserIds) {
+        // If percentage is provided, use percentage-based targeting
+        return if (percentage != null) {
+          PercentageMatchingUtil.isTargetedBasedOnPercentage(value = userId, percentage = percentage)
+        } else {
+          true // If no percentage specified, enable for all targeted users
+        }
       }
+
+      return defaultValue
     }
   }
 
