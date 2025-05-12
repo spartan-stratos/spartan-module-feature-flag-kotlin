@@ -48,24 +48,11 @@ sealed class MetadataContent {
       // Then check whitelist
       whitelistedUsers[userId]?.let { return it }
 
-      // First, check if a percentage-based rollout is configured
-      if (percentage != null) {
-        // If the user is in the targeted list, apply percentage-based targeting
-        return if (userId in targetedUserIds) {
-          PercentageMatchingUtil.isTargetedBasedOnPercentage(value = userId, percentage = percentage)
-        } else {
-          // User is not in the targeted list, return the default value
-          defaultValue
-        }
+      if (userId not in targetedUserIds) {
+        return defaultValue
       }
-
-      // Enable the feature for all users in the targeted list
-      return if (userId in targetedUserIds) {
-        true
-      } else {
-        // User is not targeted, return the default value
-        defaultValue
-      }
+      
+      return (percentage == null) or PercentageMatchingUtil.isTargetedBasedOnPercentage(value = userId, percentage = percentage)
     }
   }
 
