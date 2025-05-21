@@ -32,9 +32,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 import retrofit2.Response
+import test.AbstractTest
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class FeatureFlagIntegrationTest {
+class FeatureFlagIntegrationTest : AbstractTest() {
   private lateinit var mockSlackClient: SlackClient
   private lateinit var slackNotifier: SlackNotifier
   private lateinit var featureFlagService: FeatureFlagService
@@ -464,19 +465,4 @@ class FeatureFlagIntegrationTest {
 
     assertTrue(featureFlagService.isFeatureFlagEnabled("ALWAYS_OFF", mapOf("userId" to "user1")))
   }
-
-  private fun createFeatureFlagEntity(
-    name: String = RandomUtils.generateRandomString(),
-    code: String = RandomUtils.generateRandomString(),
-    description: String? = RandomUtils.generateRandomString(),
-    enabled: Boolean = true,
-    metadata: MetadataContent? = null
-  ): FeatureFlag =
-    FeatureFlag(
-      name = name,
-      code = code,
-      description = description,
-      enabled = enabled,
-      metadata = metadata
-    )
 }

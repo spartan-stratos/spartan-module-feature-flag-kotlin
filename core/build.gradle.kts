@@ -61,6 +61,7 @@ dependencies {
   testImplementation(Libraries.TestContainers.JUNIT)
   testImplementation(Libraries.TestContainers.POSTGRESQL)
   testImplementation(Libraries.TestContainers.TEST_CONTAINERS)
+  testImplementation(Libraries.Jackson.DATATYPE_JSR310)
 
   implementation("com.squareup.okhttp3:mockwebserver:4.9.2")
 }

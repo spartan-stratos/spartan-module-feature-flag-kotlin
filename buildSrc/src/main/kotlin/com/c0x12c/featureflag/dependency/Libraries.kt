@@ -13,7 +13,8 @@ object Libraries {
   }
 
   object Jackson {
-    const val KOTLIN = "com.fasterxml.jackson.module:jackson-module-kotlin:2.17.2"
+    const val KOTLIN = "com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.JACKSON}"
+    const val DATATYPE_JSR310 = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${Versions.JACKSON}"
   }
 
   object Kotlinx {
