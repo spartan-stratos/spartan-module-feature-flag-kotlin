@@ -2,7 +2,7 @@ package com.c0x12c.featureflag.service.utils
 
 import com.c0x12c.featureflag.cache.RedisCache
 import com.c0x12c.featureflag.repository.FeatureFlagRepository
-import com.c0x12c.featureflag.service.cache.JedisClusterCache
+import com.c0x12c.featureflag.service.cache.JedisClusterKotlinxSerializationCache
 import java.nio.file.Files
 import java.nio.file.Paths
 import org.jetbrains.exposed.sql.Database
@@ -14,6 +14,7 @@ object TestUtils {
   private lateinit var database: Database
   lateinit var repository: FeatureFlagRepository
   lateinit var redisCache: RedisCache
+  lateinit var jedisCluster: JedisCluster
 
   private const val REDIS_HOST = "localhost"
   private const val DB_URL = "jdbc:postgresql://localhost:5432/local"
@@ -24,8 +25,14 @@ object TestUtils {
 
   fun setupDependencies() {
     setupDatabase()
+    setupJedisCluster()
     setupRedisCache()
     repository = FeatureFlagRepository(database)
+  }
+
+  private fun setupJedisCluster() {
+    val redisNodes = REDIS_PORTS.map { createHostAndPort(it) }.toSet()
+    jedisCluster = JedisCluster(redisNodes)
   }
 
   private fun setupDatabase() {
@@ -35,9 +42,7 @@ object TestUtils {
   }
 
   private fun setupRedisCache() {
-    val redisNodes = REDIS_PORTS.map { createHostAndPort(it) }.toSet()
-    val jedisCluster = JedisCluster(redisNodes)
-    redisCache = JedisClusterCache(jedisCluster, "test")
+    redisCache = JedisClusterKotlinxSerializationCache(jedisCluster, "test")
   }
 
   private fun createHostAndPort(port: Int) = HostAndPort(REDIS_HOST, port)

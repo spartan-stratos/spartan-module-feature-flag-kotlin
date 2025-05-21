@@ -2,21 +2,19 @@ package com.c0x12c.featureflag.service.cache
 
 import com.c0x12c.featureflag.cache.RedisCache
 import com.c0x12c.featureflag.entity.FeatureFlag
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.JedisCluster
 
-class JedisClusterCache(
+abstract class AbstractJedisClusterCache(
   private val jedisCluster: JedisCluster,
   private val keyspace: String,
   private val ttlSeconds: Long = 3600
 ) : RedisCache {
+  abstract fun serialize(featureFlag: FeatureFlag): String
+
+  abstract fun deserialize(data: String): FeatureFlag
+
   private fun keyFrom(key: String): String = "$keyspace:$key"
-
-  private fun serialize(featureFlag: FeatureFlag): String = Json.encodeToString(featureFlag)
-
-  private fun deserialize(data: String): FeatureFlag = Json.decodeFromString<FeatureFlag>(data)
 
   override fun set(
     key: String,

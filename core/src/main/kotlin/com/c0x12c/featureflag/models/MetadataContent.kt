@@ -1,5 +1,6 @@
 package com.c0x12c.featureflag.models
 
+import com.c0x12c.featureflag.jackson.JsonTypeAware
 import com.c0x12c.featureflag.serializer.CustomDurationSerializer
 import com.c0x12c.featureflag.serializer.InstantSerializer
 import java.time.Duration
@@ -10,7 +11,7 @@ import org.apache.maven.artifact.versioning.ComparableVersion
 import utils.PercentageMatchingUtil
 
 @Serializable
-sealed class MetadataContent {
+sealed class MetadataContent : JsonTypeAware {
   abstract fun extractMetadata(key: String): String?
 
   abstract fun isEnabled(context: Map<String, Any>): Boolean
