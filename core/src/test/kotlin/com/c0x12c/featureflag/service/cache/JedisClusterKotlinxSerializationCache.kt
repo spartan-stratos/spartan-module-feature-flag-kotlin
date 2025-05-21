@@ -14,7 +14,11 @@ class JedisClusterKotlinxSerializationCache(
     keyspace = keyspace,
     ttlSeconds = ttlSeconds
   ) {
-  override fun serialize(featureFlag: FeatureFlag): String = Json.encodeToString(featureFlag)
+  companion object {
+    val serializer = Json { ignoreUnknownKeys = true }
+  }
 
-  override fun deserialize(data: String): FeatureFlag = Json.decodeFromString<FeatureFlag>(data)
+  override fun serialize(featureFlag: FeatureFlag): String = serializer.encodeToString(featureFlag)
+
+  override fun deserialize(data: String): FeatureFlag = serializer.decodeFromString<FeatureFlag>(data)
 }
