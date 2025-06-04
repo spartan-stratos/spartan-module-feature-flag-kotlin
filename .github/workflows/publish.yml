@@ -58,7 +58,7 @@ jobs:
       - name: Nexus Repo Publish
         run: |
           echo "RELEASE_VERSION=${RELEASE_VERSION}"
-          RELEASE_VERSION=${RELEASE_VERSION} ./gradlew publishToMavenCentral \
+          RELEASE_VERSION=${RELEASE_VERSION} ./gradlew build publishAndReleaseToMavenCentral \
             -Psigning.keyId=${SIGNING_KEY_ID} \
             -Psigning.password=${SIGNING_PASSWORD} \
             -Psigning.secretKeyRingFile=${GITHUB_WORKSPACE}/secring.gpg
