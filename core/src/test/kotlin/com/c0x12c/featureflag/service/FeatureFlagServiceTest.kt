@@ -138,7 +138,7 @@ class FeatureFlagServiceTest {
     val code = "TEST_FLAG"
     val updatedFlag = FeatureFlag(id = UUID.randomUUID(), name = "New Name", code = code, enabled = true, metadata = MetadataContent.TimeBasedActivation(Instant.now(), Instant.now().plusSeconds(3600)), createdAt = Instant.now(), updatedAt = Instant.now())
 
-    every { repository.update(code, any()) } returns updatedFlag
+    every { repository.updateProperties(code, any()) } returns updatedFlag
 
     val result = service.updateFeatureFlag(code, updatedFlag)
 
@@ -147,7 +147,7 @@ class FeatureFlagServiceTest {
     assertTrue(result.enabled)
     assertTrue(result.metadata is MetadataContent.TimeBasedActivation)
 
-    verify { repository.update(code, updatedFlag) }
+    verify { repository.updateProperties(code, updatedFlag) }
     verify { cache.set(code, any()) }
   }
 
@@ -156,13 +156,13 @@ class FeatureFlagServiceTest {
     val code = "NONEXISTENT_FLAG"
     val updateData = FeatureFlag(name = "New Name", code = code)
 
-    every { repository.update(code, any()) } returns null
+    every { repository.updateProperties(code, any()) } returns null
 
     assertThrows<FeatureFlagNotFoundError> {
       service.updateFeatureFlag(code, updateData)
     }
 
-    verify { repository.update(code, updateData) }
+    verify { repository.updateProperties(code, updateData) }
   }
 
   @Test

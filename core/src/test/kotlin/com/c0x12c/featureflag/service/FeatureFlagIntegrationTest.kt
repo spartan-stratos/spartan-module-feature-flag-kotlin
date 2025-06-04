@@ -465,4 +465,44 @@ class FeatureFlagIntegrationTest : AbstractTest() {
 
     assertTrue(featureFlagService.isFeatureFlagEnabled("ALWAYS_OFF", mapOf("userId" to "user1")))
   }
+
+  @Test
+  fun `updateProperties should update all properties`() {
+    val code = RandomUtils.generateRandomString()
+    val initialFlag =
+      createFeatureFlagEntity(
+        code = code,
+        enabled = true
+      )
+    featureFlagService.createFeatureFlag(initialFlag)
+
+    // Test updating only description
+    val newDescription = RandomUtils.generateRandomString()
+    val newMetadata =
+      MetadataContent.TimeBasedActivation(
+        startTime = Instant.now(),
+        endTime = Instant.now().plusSeconds(3600)
+      )
+
+    val allPropertiesUpdate =
+      featureFlagService.updateProperties(
+        code = code,
+        enabled = false,
+        description = newDescription,
+        metadata = newMetadata
+      )
+
+    assertNotNull(allPropertiesUpdate)
+    assertFalse(allPropertiesUpdate.enabled)
+    assertEquals(newDescription, allPropertiesUpdate.description)
+    assertTrue(allPropertiesUpdate.metadata is MetadataContent.TimeBasedActivation)
+    assertEquals(allPropertiesUpdate.metadata, newMetadata)
+
+    verify(exactly = 1) {
+      mockSlackClient.sendMessage(
+        match { it.text.contains(code) && it.text.endsWith(" has been ${ChangeStatus.UPDATED.name.lowercase()}") },
+        any()
+      )
+    }
+  }
 }

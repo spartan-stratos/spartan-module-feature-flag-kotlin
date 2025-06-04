@@ -1,10 +1,12 @@
 import com.c0x12c.featureflag.dependency.Libraries
+import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
   kotlin("jvm")
   kotlin("plugin.serialization") version "1.9.24"
 
   id("org.jetbrains.kotlinx.kover")
+  id("com.vanniktech.maven.publish")
 
   `maven-publish`
   signing
@@ -66,55 +68,37 @@ dependencies {
   implementation("com.squareup.okhttp3:mockwebserver:4.9.2")
 }
 
-val sourcesJar by tasks.registering(Jar::class) {
-  archiveClassifier.set("sources")
-  from(sourceSets.main.get().allSource)
-}
+mavenPublishing {
+  publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
 
-val javadocJar by tasks.registering(Jar::class) {
-  archiveClassifier.set("javadoc")
-  from(tasks.javadoc)
-}
+  signAllPublications()
 
-publishing {
-  publications {
-    create<MavenPublication>("mavenJava") {
-      from(components["java"])
-      artifactId = "core"
+  pom {
+    name.set("Feature Flag Module")
+    description.set("A module for managing feature flags")
+    inceptionYear.set("2025")
+    url.set("https://github.com/c0x12c/spartan-module-feature-flag-kotlin/")
 
-      artifact(sourcesJar.get())
-      artifact(javadocJar.get())
-
-      pom {
-        name.set("Feature Flag Module")
-        description.set("A module for managing feature flags")
-        url.set("https://github.com/c0x12c/feature-flag-module")
-
-        licenses {
-          license {
-            name.set("Apache License, Version 2.0")
-            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-          }
-        }
-
-        developers {
-          developer {
-            id.set("spartan-dev")
-            name.set("Spartan Dev")
-            email.set("dev@c0x12c.com")
-          }
-        }
-
-        scm {
-          connection.set("scm:git:git://github.com/c0x12c/spartan-module-feature-flag-kotlin.git")
-          developerConnection.set("scm:git:ssh://github.com:c0x12c/spartan-module-feature-flag-kotlin.git")
-          url.set("https://github.com/c0x12c/spartan-module-feature-flag-kotlin")
-        }
+    licenses {
+      license {
+        name.set("The Apache License, Version 2.0")
+        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+        distribution.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
       }
     }
-  }
-}
 
-signing {
-  sign(publishing.publications["mavenJava"])
+    developers {
+      developer {
+        id.set("spartan-ducduong")
+        name.set("Duc Duong")
+        url.set("https://github.com/spartan-ducduong/")
+      }
+    }
+
+    scm {
+      url.set("https://github.com/c0x12c/spartan-module-feature-flag-kotlin/")
+      connection.set("scm:git:git://github.com/c0x12c/spartan-module-feature-flag-kotlin.git")
+      developerConnection.set("scm:git:ssh://git@github.com/c0x12c/spartan-module-feature-flag-kotlin.git")
+    }
+  }
 }
