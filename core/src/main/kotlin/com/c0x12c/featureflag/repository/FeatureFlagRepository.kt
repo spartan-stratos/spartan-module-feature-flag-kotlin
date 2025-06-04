@@ -70,7 +70,7 @@ class FeatureFlagRepository(
     }
   }
 
-  fun updateProperties(
+  fun update(
     code: String,
     featureFlag: FeatureFlag
   ): FeatureFlag? {
