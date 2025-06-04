@@ -8,8 +8,6 @@ on:
 env:
   SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
   SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-  SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-  SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
   PROJECT_URL: ${{ vars.PROJECT_URL }}
   SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
 
@@ -60,17 +58,17 @@ jobs:
       - name: Nexus Repo Publish
         run: |
           echo "RELEASE_VERSION=${RELEASE_VERSION}"
-          RELEASE_VERSION=${RELEASE_VERSION} ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository \
-            -PSONATYPE_USERNAME=${SONATYPE_USERNAME} \
-            -PSONATYPE_PASSWORD=${SONATYPE_PASSWORD} \
+          RELEASE_VERSION=${RELEASE_VERSION} ./gradlew publishToMavenCentral closeAndReleaseSonatypeStagingRepository \
             -Psigning.keyId=${SIGNING_KEY_ID} \
             -Psigning.password=${SIGNING_PASSWORD} \
             -Psigning.secretKeyRingFile=${GITHUB_WORKSPACE}/secring.gpg
+            -PmavenCentralUsername=${MAVEN_CENTRAL_USERNAME}
+            -PmavenCentralPassword=${MAVEN_CENTRAL_PASSWORD}
         env:
           SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
 
       - name: "Extract Git info"
         run: |
