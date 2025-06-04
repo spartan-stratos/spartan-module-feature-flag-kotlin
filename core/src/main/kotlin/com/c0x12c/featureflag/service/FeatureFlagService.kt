@@ -131,13 +131,33 @@ class FeatureFlagService(
     logger.info("Updating feature flag with code: $code")
 
     val updatedFlag =
-      repository.updateProperties(code, featureFlag)
+      repository.update(code, featureFlag)
         ?: throw FeatureFlagNotFoundError("Feature flag with code '$code' not found")
 
     cache?.set(code, updatedFlag)
     sendNotification(updatedFlag, ChangeStatus.UPDATED)
 
     logger.info("Successfully updated the feature flag ${updatedFlag.code}")
+    return updatedFlag
+  }
+
+  fun updateProperties(
+    code: String,
+    enabled: Boolean?,
+    description: String?,
+    metadata: MetadataContent?
+  ): FeatureFlag {
+    val updatedFlag =
+      repository.updateProperties(
+        code = code,
+        enabled = enabled,
+        description = description,
+        metadata = metadata
+      ) ?: throw FeatureFlagNotFoundError("Feature flag with code '$code' not found")
+
+    cache?.set(code, updatedFlag)
+    sendNotification(updatedFlag, ChangeStatus.UPDATED)
+
     return updatedFlag
   }
 
@@ -212,26 +232,6 @@ class FeatureFlagService(
   ): String? {
     val result = getFeatureFlagByCode(code)
     return result.metadata?.extractMetadata(key)
-  }
-
-  fun updateProperties(
-    code: String,
-    enabled: Boolean?,
-    description: String?,
-    metadata: MetadataContent?
-  ): FeatureFlag? {
-    val updatedFlag =
-      repository.updateProperties(
-        code = code,
-        enabled = enabled,
-        description = description,
-        metadata = metadata
-      ) ?: throw FeatureFlagNotFoundError("Feature flag with code '$code' not found")
-
-    cache?.set(code, updatedFlag)
-    sendNotification(updatedFlag, ChangeStatus.UPDATED)
-
-    return updatedFlag
   }
 
   private fun sendNotification(
