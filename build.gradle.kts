@@ -8,22 +8,12 @@ plugins {
   id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
   id("org.jlleitschuh.gradle.ktlint") version "12.1.1" apply false
   id("org.jetbrains.kotlinx.kover") version "0.8.3"
+
+  id("com.vanniktech.maven.publish") version "0.32.0"
 }
 
 repositories {
   mavenCentral()
-}
-
-nexusPublishing {
-  repositories {
-    sonatype {
-      nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-      snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-
-      username.set(System.getenv("SONATYPE_USERNAME"))
-      password.set(System.getenv("SONATYPE_PASSWORD"))
-    }
-  }
 }
 
 kotlin {

@@ -6,6 +6,7 @@ import com.c0x12c.featureflag.exception.FeatureFlagError
 import com.c0x12c.featureflag.exception.FeatureFlagNotFoundError
 import com.c0x12c.featureflag.exception.NotifierError
 import com.c0x12c.featureflag.models.FeatureFlagType
+import com.c0x12c.featureflag.models.MetadataContent
 import com.c0x12c.featureflag.notification.ChangeStatus
 import com.c0x12c.featureflag.notification.SlackNotifier
 import com.c0x12c.featureflag.repository.FeatureFlagRepository
@@ -42,9 +43,8 @@ class FeatureFlagService(
 
     val createdFlagId = repository.insert(featureFlag)
     val newFlag =
-      repository.getById(createdFlagId) ?: run {
-        throw FeatureFlagError("Failed to retrieve created flag")
-      }
+      repository.getById(createdFlagId)
+        ?: throw FeatureFlagError("Failed to retrieve created flag")
     cache?.set(newFlag.code, newFlag)
     slackNotifier?.send(newFlag, ChangeStatus.CREATED)
 
@@ -68,9 +68,8 @@ class FeatureFlagService(
     }
 
     val featureFlag =
-      repository.getByCode(code) ?: run {
-        throw FeatureFlagNotFoundError("Feature flag with code '$code' not found")
-      }
+      repository.getByCode(code)
+        ?: throw FeatureFlagNotFoundError("Feature flag with code '$code' not found")
     cache?.set(code, featureFlag)
 
     logger.info("Successfully retrieved the feature flag ${featureFlag.code}")
@@ -88,9 +87,8 @@ class FeatureFlagService(
     logger.info("Enabling feature flag with code: $code")
 
     val updatedFlag =
-      repository.updateEnableStatus(code, true) ?: run {
-        throw FeatureFlagNotFoundError("Feature flag with code '$code' not found")
-      }
+      repository.updateEnableStatus(code, true)
+        ?: throw FeatureFlagNotFoundError("Feature flag with code '$code' not found")
 
     cache?.set(code, updatedFlag)
     sendNotification(updatedFlag, ChangeStatus.ENABLED)
@@ -109,10 +107,7 @@ class FeatureFlagService(
   fun disableFeatureFlag(code: String): FeatureFlag {
     logger.info("Disabling feature flag with code: $code")
 
-    val updatedFlag =
-      repository.updateEnableStatus(code, false) ?: run {
-        throw FeatureFlagNotFoundError("Feature flag with code '$code' not found")
-      }
+    val updatedFlag = repository.updateEnableStatus(code, false) ?: throw FeatureFlagNotFoundError("Feature flag with code '$code' not found")
 
     cache?.set(code, updatedFlag)
     sendNotification(updatedFlag, ChangeStatus.DISABLED)
@@ -136,9 +131,8 @@ class FeatureFlagService(
     logger.info("Updating feature flag with code: $code")
 
     val updatedFlag =
-      repository.update(code, featureFlag) ?: run {
-        throw FeatureFlagNotFoundError("Feature flag with code '$code' not found")
-      }
+      repository.updateProperties(code, featureFlag)
+        ?: throw FeatureFlagNotFoundError("Feature flag with code '$code' not found")
 
     cache?.set(code, updatedFlag)
     sendNotification(updatedFlag, ChangeStatus.UPDATED)
@@ -157,9 +151,9 @@ class FeatureFlagService(
     logger.info("Deleting feature flag with code: $code")
 
     val result =
-      repository.delete(code) ?: run {
-        throw FeatureFlagNotFoundError("Feature flag with code '$code' not found")
-      }
+      repository.delete(code)
+        ?: throw FeatureFlagNotFoundError("Feature flag with code '$code' not found")
+
     cache?.delete(code)
     sendNotification(result, ChangeStatus.DELETED)
 
@@ -218,6 +212,26 @@ class FeatureFlagService(
   ): String? {
     val result = getFeatureFlagByCode(code)
     return result.metadata?.extractMetadata(key)
+  }
+
+  fun updateProperties(
+    code: String,
+    enabled: Boolean?,
+    description: String?,
+    metadata: MetadataContent?
+  ): FeatureFlag? {
+    val updatedFlag =
+      repository.updateProperties(
+        code = code,
+        enabled = enabled,
+        description = description,
+        metadata = metadata
+      ) ?: throw FeatureFlagNotFoundError("Feature flag with code '$code' not found")
+
+    cache?.set(code, updatedFlag)
+    sendNotification(updatedFlag, ChangeStatus.UPDATED)
+
+    return updatedFlag
   }
 
   private fun sendNotification(
