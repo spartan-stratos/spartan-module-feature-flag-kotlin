@@ -194,11 +194,11 @@ class FeatureFlagIntegrationTest : AbstractTest() {
     featureFlagService.createFeatureFlag(flag1)
     featureFlagService.createFeatureFlag(flag2)
 
-    val flags = featureFlagService.listFeatureFlags()
+    val result = featureFlagService.listFeatureFlags()
 
-    assertEquals(2, flags.size)
-    assertEquals("Flag 1", flags[0].name)
-    assertEquals("Flag 2", flags[1].name)
+    assertEquals(2, result.items.size)
+    assertEquals("Flag 1", result.items[0].name)
+    assertEquals("Flag 2", result.items[1].name)
   }
 
   @Test
@@ -273,11 +273,11 @@ class FeatureFlagIntegrationTest : AbstractTest() {
     featureFlagService.createFeatureFlag(userFlag2)
     featureFlagService.createFeatureFlag(groupFlag)
 
-    val userFlags = featureFlagService.findFeatureFlagsByMetadataType(FeatureFlagType.USER_TARGETING)
-    assertEquals(2, userFlags.size)
+    val userFlagsResult = featureFlagService.findFeatureFlagsByMetadataType(FeatureFlagType.USER_TARGETING)
+    assertEquals(2, userFlagsResult.items.size)
 
-    val groupFlags = featureFlagService.findFeatureFlagsByMetadataType(FeatureFlagType.GROUP_TARGETING)
-    assertEquals(1, groupFlags.size)
+    val groupFlagsResult = featureFlagService.findFeatureFlagsByMetadataType(FeatureFlagType.GROUP_TARGETING)
+    assertEquals(1, groupFlagsResult.items.size)
   }
 
   @Test

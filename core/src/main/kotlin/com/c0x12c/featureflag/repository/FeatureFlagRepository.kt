@@ -4,6 +4,7 @@ import com.c0x12c.featureflag.entity.FeatureFlag
 import com.c0x12c.featureflag.entity.FeatureFlagEntity
 import com.c0x12c.featureflag.models.FeatureFlagType
 import com.c0x12c.featureflag.models.MetadataContent
+import com.c0x12c.featureflag.models.PaginatedResult
 import com.c0x12c.featureflag.table.FeatureFlagTable
 import java.time.Instant
 import java.util.UUID
@@ -129,35 +130,49 @@ class FeatureFlagRepository(
 
   fun list(
     limit: Int = 100,
-    offset: Int = 0,
+    offset: Long = 0,
     keyword: String? = null
-  ): List<FeatureFlag> =
+  ): PaginatedResult<FeatureFlag> =
     transaction(database) {
-      FeatureFlagEntity
-        .find {
-          (FeatureFlagTable.deletedAt eq null) and
-            (
-              keyword?.lowercase()?.let {
-                (FeatureFlagTable.name.lowerCase() like "%$it%") or
-                  (FeatureFlagTable.description.lowerCase() like "%$it%") or
-                  (FeatureFlagTable.code.lowerCase() like "%$it%")
-              } ?: Op.TRUE
-            )
-        }.limit(limit, offset.toLong())
-        .map { it.toFeatureFlag() }
+      val query =
+        FeatureFlagEntity
+          .find {
+            (FeatureFlagTable.deletedAt eq null) and
+              (
+                keyword?.lowercase()?.let {
+                  (FeatureFlagTable.name.lowerCase() like "%$it%") or
+                    (FeatureFlagTable.description.lowerCase() like "%$it%") or
+                    (FeatureFlagTable.code.lowerCase() like "%$it%")
+                } ?: Op.TRUE
+              )
+          }
+
+      val count = query.count()
+      val items = query.limit(limit, offset).map { it.toFeatureFlag() }
+
+      PaginatedResult(count = count, items = items)
     }
 
   fun findByMetadataType(
     type: FeatureFlagType,
     limit: Int = 100,
-    offset: Int = 0
-  ): List<FeatureFlag> =
+    offset: Long = 0
+  ): PaginatedResult<FeatureFlag> =
     transaction(database) {
-      FeatureFlagEntity
-        .find {
-          (FeatureFlagTable.type eq type) and (FeatureFlagTable.deletedAt eq null)
-        }.limit(limit, offset.toLong())
-        .map { it.toFeatureFlag() }
+      val query =
+        FeatureFlagEntity
+          .find {
+            (FeatureFlagTable.type eq type) and (FeatureFlagTable.deletedAt eq null)
+          }
+
+      val count = query.count()
+
+      val items =
+        query
+          .limit(limit, offset)
+          .map { it.toFeatureFlag() }
+
+      PaginatedResult(count = count, items = items)
     }
 
   private fun FeatureFlagEntity.toFeatureFlag(): FeatureFlag =
