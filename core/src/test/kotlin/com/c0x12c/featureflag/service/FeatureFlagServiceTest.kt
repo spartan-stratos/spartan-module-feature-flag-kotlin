@@ -5,6 +5,7 @@ import com.c0x12c.featureflag.entity.FeatureFlag
 import com.c0x12c.featureflag.exception.FeatureFlagNotFoundError
 import com.c0x12c.featureflag.models.FeatureFlagType
 import com.c0x12c.featureflag.models.MetadataContent
+import com.c0x12c.featureflag.models.PaginatedResult
 import com.c0x12c.featureflag.notification.ChangeStatus
 import com.c0x12c.featureflag.notification.SlackNotifier
 import com.c0x12c.featureflag.repository.FeatureFlagRepository
@@ -169,13 +170,13 @@ class FeatureFlagServiceTest {
   fun `listFeatureFlags should return list of flags`() {
     val flags = listOf(FeatureFlag(id = UUID.randomUUID(), name = "Flag 1", code = "FLAG_1"), FeatureFlag(id = UUID.randomUUID(), name = "Flag 2", code = "FLAG_2"))
 
-    every { repository.list(100, 0) } returns flags
+    every { repository.list(100, 0) } returns PaginatedResult(count = 2, items = flags)
 
     val result = service.listFeatureFlags()
 
-    assertEquals(2, result.size)
-    assertEquals("Flag 1", result[0].name)
-    assertEquals("FLAG_2", result[1].code)
+    assertEquals(2, result.items.size)
+    assertEquals("Flag 1", result.items[0].name)
+    assertEquals("FLAG_2", result.items[1].code)
 
     verify { repository.list(100, 0) }
   }
@@ -184,12 +185,12 @@ class FeatureFlagServiceTest {
   fun `listFeatureFlags with keyword should work`() {
     val flags = listOf(FeatureFlag(id = UUID.randomUUID(), name = "Flag 1", code = "FLAG_1"), FeatureFlag(id = UUID.randomUUID(), name = "Flag 2", code = "FLAG_2"))
 
-    every { repository.list(100, 0, "flag 1") } returns listOf(flags[0])
+    every { repository.list(100, 0, "flag 1") } returns PaginatedResult(count = 2, listOf(flags[0]))
 
     val result = service.listFeatureFlags(keyword = "flag 1")
 
-    assertEquals(1, result.size)
-    assertEquals("Flag 1", result.first().name)
+    assertEquals(1, result.items.size)
+    assertEquals("Flag 1", result.items.first().name)
 
     verify { repository.list(100, 0, "flag 1") }
   }
@@ -211,13 +212,13 @@ class FeatureFlagServiceTest {
   fun `findFeatureFlagsByMetadataType should return flags with specific metadata type`() {
     val flags = listOf(FeatureFlag(id = UUID.randomUUID(), name = "Flag 1", code = "FLAG_1", metadata = MetadataContent.UserTargeting(targetedUserIds = listOf(), percentage = 50.0)), FeatureFlag(id = UUID.randomUUID(), name = "Flag 2", code = "FLAG_2", metadata = MetadataContent.GroupTargeting(listOf(), 75.0)))
 
-    every { repository.findByMetadataType(FeatureFlagType.USER_TARGETING, 100, 0) } returns listOf(flags[0])
+    every { repository.findByMetadataType(FeatureFlagType.USER_TARGETING, 100, 0) } returns PaginatedResult(count = 1, items = flags.subList(0, 1))
 
     val result = service.findFeatureFlagsByMetadataType(FeatureFlagType.USER_TARGETING)
 
-    assertEquals(1, result.size)
-    assertEquals("Flag 1", result[0].name)
-    assertTrue(result[0].metadata is MetadataContent.UserTargeting)
+    assertEquals(1, result.items.size)
+    assertEquals("Flag 1", result.items[0].name)
+    assertTrue(result.items[0].metadata is MetadataContent.UserTargeting)
 
     verify { repository.findByMetadataType(FeatureFlagType.USER_TARGETING, 100, 0) }
   }

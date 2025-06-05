@@ -7,6 +7,7 @@ import com.c0x12c.featureflag.exception.FeatureFlagNotFoundError
 import com.c0x12c.featureflag.exception.NotifierError
 import com.c0x12c.featureflag.models.FeatureFlagType
 import com.c0x12c.featureflag.models.MetadataContent
+import com.c0x12c.featureflag.models.PaginatedResult
 import com.c0x12c.featureflag.notification.ChangeStatus
 import com.c0x12c.featureflag.notification.SlackNotifier
 import com.c0x12c.featureflag.repository.FeatureFlagRepository
@@ -28,7 +29,7 @@ class FeatureFlagService(
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
     private const val DEFAULT_LIMIT = 100
-    private const val DEFAULT_OFFSET = 0
+    private const val DEFAULT_OFFSET = 0L
   }
 
   /**
@@ -189,9 +190,9 @@ class FeatureFlagService(
    */
   fun listFeatureFlags(
     limit: Int = DEFAULT_LIMIT,
-    offset: Int = DEFAULT_OFFSET,
+    offset: Long = DEFAULT_OFFSET,
     keyword: String? = null
-  ): List<FeatureFlag> = repository.list(limit, offset, keyword)
+  ): PaginatedResult<FeatureFlag> = repository.list(limit, offset, keyword)
 
   /**
    * Finds feature flags by metadata type.
@@ -199,13 +200,13 @@ class FeatureFlagService(
    * @param type The metadata type to search for.
    * @param limit Maximum number of flags to return.
    * @param offset Number of flags to skip.
-   * @return List of feature flags matching the metadata type.
+   * @return A paginated result containing feature flags matching the metadata type.
    */
   fun findFeatureFlagsByMetadataType(
     type: FeatureFlagType,
     limit: Int = DEFAULT_LIMIT,
-    offset: Int = DEFAULT_OFFSET
-  ): List<FeatureFlag> = repository.findByMetadataType(type, limit, offset)
+    offset: Long = DEFAULT_OFFSET
+  ): PaginatedResult<FeatureFlag> = repository.findByMetadataType(type, limit, offset)
 
   /**
    * Checks if a feature flag is enabled for the given context.
