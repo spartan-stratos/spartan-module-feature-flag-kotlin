@@ -73,7 +73,7 @@ class FeatureFlagIntegrationTest : AbstractTest() {
       ) { mockSlackClient }
 
     featureFlagService =
-      FeatureFlagService(
+      DefaultFeatureFlagService(
         repository,
         redisCache,
         slackNotifier

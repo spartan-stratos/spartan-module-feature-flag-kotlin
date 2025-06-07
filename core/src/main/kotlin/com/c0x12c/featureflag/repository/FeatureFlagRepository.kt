@@ -133,7 +133,8 @@ class FeatureFlagRepository(
   fun list(
     limit: Int = 100,
     offset: Long = 0,
-    keyword: String? = null
+    keyword: String? = null,
+    enabled: Boolean? = null
   ): PaginatedResult<FeatureFlag> =
     transaction(database) {
       val query =
@@ -146,7 +147,7 @@ class FeatureFlagRepository(
                     (FeatureFlagTable.description.lowerCase() like "%$it%") or
                     (FeatureFlagTable.code.lowerCase() like "%$it%")
                 } ?: Op.TRUE
-              )
+              ) and (enabled?.let { FeatureFlagTable.enabled eq it } ?: Op.TRUE)
           }
 
       val count = query.count()
@@ -162,13 +163,15 @@ class FeatureFlagRepository(
   fun findByMetadataType(
     type: FeatureFlagType,
     limit: Int = 100,
-    offset: Long = 0
+    offset: Long = 0,
+    enabled: Boolean?
   ): PaginatedResult<FeatureFlag> =
     transaction(database) {
       val query =
         FeatureFlagEntity
           .find {
-            (FeatureFlagTable.type eq type) and (FeatureFlagTable.deletedAt eq null)
+            (FeatureFlagTable.type eq type) and (FeatureFlagTable.deletedAt eq null) and
+              (enabled?.let { FeatureFlagTable.enabled eq it } ?: Op.TRUE)
           }
 
       val count = query.count()

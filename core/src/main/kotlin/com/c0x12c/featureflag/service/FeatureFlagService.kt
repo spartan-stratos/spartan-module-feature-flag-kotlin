@@ -14,22 +14,74 @@ import com.c0x12c.featureflag.repository.FeatureFlagRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+interface FeatureFlagService {
+  fun createFeatureFlag(featureFlag: FeatureFlag): FeatureFlag
+
+  fun getFeatureFlagByCode(code: String): FeatureFlag
+
+  fun enableFeatureFlag(code: String): FeatureFlag
+
+  fun disableFeatureFlag(code: String): FeatureFlag
+
+  fun updateFeatureFlag(
+    code: String,
+    featureFlag: FeatureFlag
+  ): FeatureFlag
+
+  fun updateProperties(
+    code: String,
+    enabled: Boolean?,
+    description: String?,
+    metadata: MetadataContent?
+  ): FeatureFlag
+
+  fun deleteFeatureFlag(code: String)
+
+  fun listFeatureFlags(
+    limit: Int = DEFAULT_LIMIT,
+    offset: Long = DEFAULT_OFFSET,
+    keyword: String? = null,
+    enabled: Boolean? = null
+  ): PaginatedResult<FeatureFlag>
+
+  fun findFeatureFlagsByMetadataType(
+    type: FeatureFlagType,
+    limit: Int = DEFAULT_LIMIT,
+    offset: Long = DEFAULT_OFFSET,
+    enabled: Boolean? = null
+  ): PaginatedResult<FeatureFlag>
+
+  fun isFeatureFlagEnabled(
+    code: String,
+    context: Map<String, Any>
+  ): Boolean
+
+  fun getMetadataValue(
+    code: String,
+    key: String
+  ): String?
+
+  companion object {
+    const val DEFAULT_LIMIT = 10
+    const val DEFAULT_OFFSET: Long = 0L
+  }
+}
+
 /**
  * Service class for managing feature flags.
  *
  * @property repository The repository for feature flag data access.
  * @property cache Optional Redis cache for feature flags.
+ * @property slackNotifier Optional Slack notifier for feature flag changes.
+ *
  */
-class FeatureFlagService(
+class DefaultFeatureFlagService(
   private val repository: FeatureFlagRepository,
   private val cache: RedisCache? = null,
   private val slackNotifier: SlackNotifier? = null
-) {
+) : FeatureFlagService {
   private companion object {
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
-
-    private const val DEFAULT_LIMIT = 100
-    private const val DEFAULT_OFFSET = 0L
   }
 
   /**
@@ -39,7 +91,7 @@ class FeatureFlagService(
    * @return The created feature flag.
    * @throws FeatureFlagError If the created flag cannot be retrieved.
    */
-  fun createFeatureFlag(featureFlag: FeatureFlag): FeatureFlag {
+  override fun createFeatureFlag(featureFlag: FeatureFlag): FeatureFlag {
     logger.info("Creating new feature flag with code: ${featureFlag.code}")
 
     val createdFlagId = repository.insert(featureFlag)
@@ -60,7 +112,7 @@ class FeatureFlagService(
    * @return The feature flag.
    * @throws FeatureFlagNotFoundError If the feature flag is not found.
    */
-  fun getFeatureFlagByCode(code: String): FeatureFlag {
+  override fun getFeatureFlagByCode(code: String): FeatureFlag {
     logger.info("Retrieving feature flag with code: $code")
 
     cache?.get(code)?.let {
@@ -84,7 +136,7 @@ class FeatureFlagService(
    * @return The updated feature flag.
    * @throws FeatureFlagNotFoundError If the feature flag is not found.
    */
-  fun enableFeatureFlag(code: String): FeatureFlag {
+  override fun enableFeatureFlag(code: String): FeatureFlag {
     logger.info("Enabling feature flag with code: $code")
 
     val updatedFlag =
@@ -105,7 +157,7 @@ class FeatureFlagService(
    * @return The updated feature flag.
    * @throws FeatureFlagNotFoundError If the feature flag is not found.
    */
-  fun disableFeatureFlag(code: String): FeatureFlag {
+  override fun disableFeatureFlag(code: String): FeatureFlag {
     logger.info("Disabling feature flag with code: $code")
 
     val updatedFlag = repository.updateEnableStatus(code, false) ?: throw FeatureFlagNotFoundError("Feature flag with code '$code' not found")
@@ -125,7 +177,7 @@ class FeatureFlagService(
    * @return The updated feature flag.
    * @throws FeatureFlagNotFoundError If the feature flag is not found.
    */
-  fun updateFeatureFlag(
+  override fun updateFeatureFlag(
     code: String,
     featureFlag: FeatureFlag
   ): FeatureFlag {
@@ -142,7 +194,7 @@ class FeatureFlagService(
     return updatedFlag
   }
 
-  fun updateProperties(
+  override fun updateProperties(
     code: String,
     enabled: Boolean?,
     description: String?,
@@ -168,7 +220,7 @@ class FeatureFlagService(
    * @param code The code of the feature flag to delete.
    * @throws FeatureFlagNotFoundError If the feature flag is not found.
    */
-  fun deleteFeatureFlag(code: String) {
+  override fun deleteFeatureFlag(code: String) {
     logger.info("Deleting feature flag with code: $code")
 
     val result =
@@ -188,11 +240,12 @@ class FeatureFlagService(
    * @param offset Number of flags to skip.
    * @return List of feature flags.
    */
-  fun listFeatureFlags(
-    limit: Int = DEFAULT_LIMIT,
-    offset: Long = DEFAULT_OFFSET,
-    keyword: String? = null
-  ): PaginatedResult<FeatureFlag> = repository.list(limit, offset, keyword)
+  override fun listFeatureFlags(
+    limit: Int,
+    offset: Long,
+    keyword: String?,
+    enabled: Boolean?
+  ): PaginatedResult<FeatureFlag> = repository.list(limit, offset, keyword, enabled)
 
   /**
    * Finds feature flags by metadata type.
@@ -202,11 +255,12 @@ class FeatureFlagService(
    * @param offset Number of flags to skip.
    * @return A paginated result containing feature flags matching the metadata type.
    */
-  fun findFeatureFlagsByMetadataType(
+  override fun findFeatureFlagsByMetadataType(
     type: FeatureFlagType,
-    limit: Int = DEFAULT_LIMIT,
-    offset: Long = DEFAULT_OFFSET
-  ): PaginatedResult<FeatureFlag> = repository.findByMetadataType(type, limit, offset)
+    limit: Int,
+    offset: Long,
+    enabled: Boolean?
+  ): PaginatedResult<FeatureFlag> = repository.findByMetadataType(type, limit, offset, enabled)
 
   /**
    * Checks if a feature flag is enabled for the given context.
@@ -215,7 +269,7 @@ class FeatureFlagService(
    * @param context The context for evaluating the feature flag.
    * @return True if the feature flag is enabled, false otherwise.
    */
-  fun isFeatureFlagEnabled(
+  override fun isFeatureFlagEnabled(
     code: String,
     context: Map<String, Any>
   ): Boolean {
@@ -227,7 +281,7 @@ class FeatureFlagService(
     return flag.metadata?.isEnabled(context) ?: true
   }
 
-  fun getMetadataValue(
+  override fun getMetadataValue(
     code: String,
     key: String
   ): String? {
