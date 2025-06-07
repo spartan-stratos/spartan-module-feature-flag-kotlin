@@ -1,15 +1,13 @@
 import com.c0x12c.featureflag.utils.VersionUtil
 
 plugins {
-  kotlin("jvm") version "1.9.24"
+  signing
 
-  id("maven-publish")
-  id("signing")
-  id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
-  id("org.jlleitschuh.gradle.ktlint") version "12.1.1" apply false
-  id("org.jetbrains.kotlinx.kover") version "0.8.3"
-
-  id("com.vanniktech.maven.publish") version "0.32.0"
+  alias(libs.plugins.kotlin.jvm)
+  alias(libs.plugins.kotlinx.kover)
+  alias(libs.plugins.ksp) apply false
+  alias(libs.plugins.ktlint) apply false
+  alias(libs.plugins.vanniktech.maven.publish)
 }
 
 repositories {
@@ -57,8 +55,6 @@ subprojects {
   this.version = rootProject.version
   this.group = rootProject.group
 
-  // Apply the Ktlint plugin to subprojects
-  apply(plugin = "org.jetbrains.kotlinx.kover")
   apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
   // Configure Ktlint within subprojects

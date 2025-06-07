@@ -1,0 +1,49 @@
+[versions]
+exposed = "0.49.0"
+murmurhash = "0.4.0"
+jackson = "2.18.1"
+javaxInject = "1"
+kotlin = "2.0.21"
+kotlinx = "1.9.0"
+kotlinxDateTime = "0.6.2"
+ksp = "2.0.21-1.0.27"
+ktlintPlugin = "12.1.1"
+retrofit = "2.11.0"
+serializationJson = "1.6.1"
+testContainers = "1.19.3"
+
+[plugins]
+allopen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlinx-kover = { id = "org.jetbrains.kotlinx.kover", version = "0.8.3" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintPlugin" }
+vanniktech-maven-publish = { id = "com.vanniktech.maven.publish", version = "0.32.0" }
+
+[libraries]
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed" }
+exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time", version.ref = "exposed" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+goncalossilva-murmurhash = { module = "com.goncalossilva:murmurhash", version.ref = "murmurhash" }
+jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+javax-inject = {module = "javax.inject:javax.inject", version.ref = "javaxInject" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version = "5.10.2" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version = "5.10.2" }
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx" }
+kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDateTime" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serializationJson" }
+logging-logback-classic = { module = "ch.qos.logback:logback-classic", version = "1.5.12" }
+maven-artifact = { module = "org.apache.maven:maven-artifact", version = "3.9.9" }
+mockk = { module = "io.mockk:mockk", version = "1.13.13" }
+postgres-jdbc = { module = "org.postgresql:postgresql", version = "42.7.4" }
+logging-slf4j-api = { module = "org.slf4j:slf4j-api", version = "2.0.9" }
+redis-jedis = { module = "redis.clients:jedis", version = "5.1.5" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-jackson = { module = "com.squareup.retrofit2:converter-jackson", version.ref = "retrofit" }
+testcontainers-junit-jupiter = { module = "org.testcontainers:junit-jupiter", version.ref = "testContainers" }
+testcontainers-postgresql = { module = "org.testcontainers:postgresql", version.ref = "testContainers" }
+testcontainers-core = { module = "org.testcontainers:testcontainers", version.ref = "testContainers" }

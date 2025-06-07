@@ -63,11 +63,13 @@ class FeatureFlagJacksonIntegrationTest : AbstractTest() {
 
     slackNotifier =
       SlackNotifier(
-        SlackNotifierConfig(
-          webhookUrl = "xxx",
-          requestHeaders = mapOf("clientId" to "test", "apiKey" to "1234")
-        )
-      ) { mockSlackClient }
+        config =
+          SlackNotifierConfig(
+            webhookUrl = "xxx",
+            requestHeaders = mapOf("clientId" to "test", "apiKey" to "1234")
+          ),
+        clientProvider = { mockSlackClient }
+      )
 
     redisCache = JedisClusterJacksonCache(jedisCluster, "test")
 

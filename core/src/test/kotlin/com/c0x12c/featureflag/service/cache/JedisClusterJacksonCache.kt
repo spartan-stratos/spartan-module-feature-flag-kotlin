@@ -1,8 +1,7 @@
 package com.c0x12c.featureflag.service.cache
 
 import com.c0x12c.featureflag.entity.FeatureFlag
-import com.c0x12c.featureflag.service.jackson.configured
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.c0x12c.featureflag.jackson.CoreJackson
 import redis.clients.jedis.JedisCluster
 
 class JedisClusterJacksonCache(
@@ -15,7 +14,7 @@ class JedisClusterJacksonCache(
     ttlSeconds = ttlSeconds
   ) {
   companion object {
-    val jackson = ObjectMapper().configured()
+    val jackson = CoreJackson.INSTANCE
   }
 
   override fun serialize(featureFlag: FeatureFlag): String = jackson.writeValueAsString(featureFlag)

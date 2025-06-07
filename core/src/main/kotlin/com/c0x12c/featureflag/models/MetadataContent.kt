@@ -1,22 +1,17 @@
 package com.c0x12c.featureflag.models
 
 import com.c0x12c.featureflag.jackson.JsonTypeAware
-import com.c0x12c.featureflag.serializer.CustomDurationSerializer
-import com.c0x12c.featureflag.serializer.InstantSerializer
 import java.time.Duration
 import java.time.Instant
 import kotlin.math.absoluteValue
-import kotlinx.serialization.Serializable
 import org.apache.maven.artifact.versioning.ComparableVersion
 import utils.PercentageMatchingUtil
 
-@Serializable
 sealed class MetadataContent : JsonTypeAware {
   abstract fun extractMetadata(key: String): String?
 
   abstract fun isEnabled(context: Map<String, Any>): Boolean
 
-  @Serializable
   data class UserTargeting(
     val whitelistedUsers: Map<String, Boolean> = emptyMap(),
     val blacklistedUsers: Map<String, Boolean> = emptyMap(),
@@ -57,7 +52,6 @@ sealed class MetadataContent : JsonTypeAware {
     }
   }
 
-  @Serializable
   data class GroupTargeting(
     val groupIds: List<String>,
     val percentage: Double
@@ -80,11 +74,8 @@ sealed class MetadataContent : JsonTypeAware {
     }
   }
 
-  @Serializable
   data class TimeBasedActivation(
-    @Serializable(with = InstantSerializer::class)
     val startTime: Instant,
-    @Serializable(with = InstantSerializer::class)
     val endTime: Instant
   ) : MetadataContent() {
     override fun extractMetadata(key: String): String? =
@@ -101,13 +92,10 @@ sealed class MetadataContent : JsonTypeAware {
     }
   }
 
-  @Serializable
   data class GradualRollout(
     val startPercentage: Double,
     val endPercentage: Double,
-    @Serializable(with = InstantSerializer::class)
     val startTime: Instant,
-    @Serializable(with = CustomDurationSerializer::class)
     val duration: Duration
   ) : MetadataContent() {
     init {
@@ -141,7 +129,6 @@ sealed class MetadataContent : JsonTypeAware {
     }
   }
 
-  @Serializable
   data class ABTestingConfig(
     val variantA: String,
     val variantB: String,
@@ -167,7 +154,6 @@ sealed class MetadataContent : JsonTypeAware {
     }
   }
 
-  @Serializable
   data class VersionTargeting(
     val minVersion: String,
     val maxVersion: String
@@ -188,7 +174,6 @@ sealed class MetadataContent : JsonTypeAware {
     }
   }
 
-  @Serializable
   data class GeographicTargeting(
     val countries: List<String>,
     val regions: List<String>
@@ -215,7 +200,6 @@ sealed class MetadataContent : JsonTypeAware {
     }
   }
 
-  @Serializable
   data class DeviceTargeting(
     // e.g., "iOS", "Android", "Web"
     val platforms: List<String>,
@@ -244,7 +228,6 @@ sealed class MetadataContent : JsonTypeAware {
     }
   }
 
-  @Serializable
   data class CustomRules(
     // Custom key-value pairs for specific business logic
     val rules: Map<String, String>

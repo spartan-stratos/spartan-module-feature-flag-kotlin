@@ -2,16 +2,16 @@ package com.c0x12c.featureflag.repository
 
 import com.c0x12c.featureflag.entity.FeatureFlag
 import com.c0x12c.featureflag.entity.FeatureFlagEntity
+import com.c0x12c.featureflag.jackson.CoreJackson
 import com.c0x12c.featureflag.models.FeatureFlagType
 import com.c0x12c.featureflag.models.MetadataContent
 import com.c0x12c.featureflag.models.PaginatedResult
 import com.c0x12c.featureflag.table.FeatureFlagTable
 import java.time.Instant
 import java.util.UUID
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.or
@@ -20,7 +20,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class FeatureFlagRepository(
   private val database: Database
 ) {
-  private val json = Json { ignoreUnknownKeys = true }
+  companion object {
+    val objectMapper = CoreJackson.INSTANCE
+  }
 
   fun insert(featureFlag: FeatureFlag): UUID =
     transaction(database) {
@@ -30,7 +32,7 @@ class FeatureFlagRepository(
           code = featureFlag.code
           description = featureFlag.description
           enabled = featureFlag.enabled
-          metadata = featureFlag.metadata?.let { json.encodeToString(it) }
+          metadata = featureFlag.metadata?.let { objectMapper.writeValueAsString(it) }
           type = featureFlag.type
           createdAt = Instant.now()
         }.id.value
@@ -86,7 +88,7 @@ class FeatureFlagRepository(
           name = featureFlag.name
           description = featureFlag.description
           enabled = featureFlag.enabled
-          metadata = featureFlag.metadata?.let { json.encodeToString(it) }
+          metadata = featureFlag.metadata?.let { objectMapper.writeValueAsString(it) }
           type = featureFlag.type
           updatedAt = Instant.now()
         }.toFeatureFlag()
@@ -109,7 +111,7 @@ class FeatureFlagRepository(
         .apply {
           enabled?.let { this.enabled = it }
           description?.let { this.description = it }
-          metadata?.let { this.metadata = json.encodeToString(it) }
+          metadata?.let { this.metadata = objectMapper.writeValueAsString(it) }
           updatedAt = Instant.now()
         }.toFeatureFlag()
     }
@@ -148,7 +150,11 @@ class FeatureFlagRepository(
           }
 
       val count = query.count()
-      val items = query.limit(limit, offset).map { it.toFeatureFlag() }
+      val items =
+        query
+          .orderBy(Pair(FeatureFlagTable.code, SortOrder.ASC))
+          .limit(limit, offset)
+          .map { it.toFeatureFlag() }
 
       PaginatedResult(count = count, items = items)
     }
@@ -169,6 +175,7 @@ class FeatureFlagRepository(
 
       val items =
         query
+          .orderBy(Pair(FeatureFlagTable.code, SortOrder.ASC))
           .limit(limit, offset)
           .map { it.toFeatureFlag() }
 
@@ -183,7 +190,10 @@ class FeatureFlagRepository(
       description = description,
       enabled = enabled,
       type = type,
-      metadata = metadata?.let { json.decodeFromString<MetadataContent>(it) },
+      metadata =
+        metadata?.let {
+          objectMapper.readValue(it, MetadataContent::class.java)
+        },
       createdAt = createdAt,
       updatedAt = updatedAt,
       deletedAt = deletedAt

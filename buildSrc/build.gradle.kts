@@ -11,5 +11,5 @@ repositories {
 
 dependencies {
   implementation("org.jetbrains.kotlin:kotlin-stdlib")
-  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.1")
+  implementation(libs.jackson.module.kotlin)
 }
