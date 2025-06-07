@@ -62,7 +62,7 @@ interface FeatureFlagService {
   ): String?
 
   companion object {
-    const val DEFAULT_LIMIT = 10
+    const val DEFAULT_LIMIT = 100
     const val DEFAULT_OFFSET: Long = 0L
   }
 }
