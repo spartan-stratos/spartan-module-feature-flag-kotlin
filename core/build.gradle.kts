@@ -3,7 +3,6 @@ import com.vanniktech.maven.publish.SonatypeHost
 plugins {
   signing
   kotlin("jvm")
-  kotlin("plugin.serialization") version "1.9.24"
 
   alias(libs.plugins.ktlint) apply false
   alias(libs.plugins.vanniktech.maven.publish)
