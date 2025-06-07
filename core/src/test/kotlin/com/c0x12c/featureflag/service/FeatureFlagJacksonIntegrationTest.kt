@@ -74,7 +74,7 @@ class FeatureFlagJacksonIntegrationTest : AbstractTest() {
     redisCache = JedisClusterJacksonCache(jedisCluster, "test")
 
     featureFlagService =
-      FeatureFlagService(
+      DefaultFeatureFlagService(
         repository,
         redisCache,
         slackNotifier

@@ -36,7 +36,7 @@ val repository = FeatureFlagRepository(database)
 val cache = RedisCache(...)
 
 // Create FeatureFlagService
-val featureFlagService = FeatureFlagService(repository, cache)
+val featureFlagService = DefaultFeatureFlagService(repository, cache)
 
 // Create a new feature flag
 val newFlag = featureFlagService.createFeatureFlag(mapOf(
