@@ -131,8 +131,8 @@ class FeatureFlagRepository(
   }
 
   fun list(
-    limit: Int = 100,
-    offset: Long = 0,
+    limit: Int,
+    offset: Long,
     keyword: String? = null,
     enabled: Boolean? = null
   ): PaginatedResult<FeatureFlag> =
@@ -162,8 +162,8 @@ class FeatureFlagRepository(
 
   fun findByMetadataType(
     type: FeatureFlagType,
-    limit: Int = 100,
-    offset: Long = 0,
+    limit: Int,
+    offset: Long,
     enabled: Boolean?
   ): PaginatedResult<FeatureFlag> =
     transaction(database) {
