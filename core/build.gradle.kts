@@ -1,15 +1,11 @@
-import com.c0x12c.featureflag.dependency.Libraries
 import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
-  kotlin("jvm")
-  kotlin("plugin.serialization") version "1.9.24"
-
-  id("org.jetbrains.kotlinx.kover")
-  id("com.vanniktech.maven.publish")
-
-  `maven-publish`
   signing
+  kotlin("jvm")
+
+  alias(libs.plugins.ktlint) apply false
+  alias(libs.plugins.vanniktech.maven.publish)
 }
 
 repositories {
@@ -17,55 +13,54 @@ repositories {
 }
 
 dependencies {
-  implementation(kotlin("stdlib"))
-  implementation(Libraries.Kotlinx.KOTLINX_COROUTINES_CORE)
-  implementation(Libraries.Kotlinx.KOTLINX_DATETIME)
-  implementation(Libraries.Kotlinx.KOTLINX_SERIALIZATION_JSON)
-  implementation(Libraries.Retrofit2.RETROFIT)
-  implementation(Libraries.Retrofit2.CONVERTER_GSON)
+  implementation(libs.kotlin.stdlib)
 
-  implementation(Libraries.JavaxInject.INJECT)
+  implementation(libs.kotlinx.coroutines.core)
+  implementation(libs.kotlinx.datetime)
+  implementation(libs.retrofit)
+  implementation(libs.retrofit.jackson)
 
-  implementation(Libraries.Exposed.CORE)
-  implementation(Libraries.Exposed.DAO)
-  implementation(Libraries.Exposed.JAVA_TIME)
-  implementation(Libraries.Exposed.JDBC)
+  implementation(libs.javax.inject)
 
-  implementation(Libraries.Jackson.KOTLIN)
-  implementation(Libraries.Zaxxer.HIKARI)
-  implementation(Libraries.Goncalossilva.MURMURHASH)
-  implementation(Libraries.Maven.ARTIFACT)
+  // Database
+  implementation(libs.exposed.core)
+  implementation(libs.exposed.dao)
+  implementation(libs.exposed.java.time)
+  implementation(libs.exposed.jdbc)
+
+  // Jackson
+  implementation(libs.jackson.module.kotlin)
+  implementation(libs.jackson.datatype.jsr310)
+  implementation(libs.goncalossilva.murmurhash)
+  implementation(libs.maven.artifact)
 
   // Logging
-  implementation(Libraries.Logging.LOGBACK_CLASSIC)
-  implementation(Libraries.Logging.SLF4J)
+  implementation(libs.logging.logback.classic)
+  implementation(libs.logging.slf4j.api)
 
   // Test
   testImplementation(kotlin("test"))
 
   // PostgreSQL
-  testImplementation(Libraries.PostgreSQL.POSTGRESQL)
+  testImplementation(libs.postgres.jdbc)
 
   // JUnit
-  testImplementation(Libraries.Junit5.API)
-  testImplementation(Libraries.Junit5.ENGINE)
+  testImplementation(libs.junit.jupiter.api)
+  testImplementation(libs.junit.jupiter.engine)
 
   // MockK for mocking objects
-  testImplementation(Libraries.Mockk.MOCKK)
+  testImplementation(libs.mockk)
 
   // Coroutines for suspend functions
-  testImplementation(Libraries.Kotlinx.KOTLINX_COROUTINES_TEST)
+  testImplementation(libs.kotlinx.coroutines.test)
 
   // Jedis
-  testImplementation(Libraries.Redis.JEDIS)
+  testImplementation(libs.redis.jedis)
 
   // Test Containers
-  testImplementation(Libraries.TestContainers.JUNIT)
-  testImplementation(Libraries.TestContainers.POSTGRESQL)
-  testImplementation(Libraries.TestContainers.TEST_CONTAINERS)
-  testImplementation(Libraries.Jackson.DATATYPE_JSR310)
-
-  implementation("com.squareup.okhttp3:mockwebserver:4.9.2")
+  testImplementation(libs.testcontainers.junit.jupiter)
+  testImplementation(libs.testcontainers.postgresql)
+  testImplementation(libs.testcontainers.core)
 }
 
 mavenPublishing {

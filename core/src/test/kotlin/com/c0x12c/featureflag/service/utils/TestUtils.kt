@@ -2,7 +2,7 @@ package com.c0x12c.featureflag.service.utils
 
 import com.c0x12c.featureflag.cache.RedisCache
 import com.c0x12c.featureflag.repository.FeatureFlagRepository
-import com.c0x12c.featureflag.service.cache.JedisClusterKotlinxSerializationCache
+import com.c0x12c.featureflag.service.cache.JedisClusterJacksonCache
 import java.nio.file.Files
 import java.nio.file.Paths
 import org.jetbrains.exposed.sql.Database
@@ -42,7 +42,7 @@ object TestUtils {
   }
 
   private fun setupRedisCache() {
-    redisCache = JedisClusterKotlinxSerializationCache(jedisCluster, "test")
+    redisCache = JedisClusterJacksonCache(jedisCluster, "test")
   }
 
   private fun createHostAndPort(port: Int) = HostAndPort(REDIS_HOST, port)
@@ -53,7 +53,7 @@ object TestUtils {
   }
 
   fun cleanDependencies() {
-    cleanDatabase()
+//    cleanDatabase()
   }
 
   private fun cleanDatabase() {

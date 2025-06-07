@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
  * @see com.fasterxml.jackson.annotation.JsonTypeInfo
  */
 @JsonTypeInfo(
-  use = JsonTypeInfo.Id.CLASS,
+  use = JsonTypeInfo.Id.SIMPLE_NAME,
   include = JsonTypeInfo.As.PROPERTY,
   property = "type"
 )
