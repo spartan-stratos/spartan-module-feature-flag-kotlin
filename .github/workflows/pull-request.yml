@@ -42,15 +42,8 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-${{ runner.os }}
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Run Redis cluster
         uses: vishnudxb/redis-cluster@1.0.9
