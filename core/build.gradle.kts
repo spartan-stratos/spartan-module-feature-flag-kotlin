@@ -83,6 +83,14 @@ mavenPublishing {
       }
     }
 
+    developers {
+      developer {
+        id.set("spartan-ducduong")
+        name.set("Duc Duong")
+        url.set("https://github.com/spartan-ducduong/")
+      }
+    }
+
     scm {
       url.set("https://github.com/c0x12c/spartan-module-feature-flag-kotlin/")
       connection.set("scm:git:git://github.com/c0x12c/spartan-module-feature-flag-kotlin.git")
