@@ -46,7 +46,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Run Redis cluster
-        uses: vishnudxb/redis-cluster@1.0.9
+        uses: vishnudxb/redis-cluster@1.10.0
         with:
           master1-port: 30001
           master2-port: 30002
